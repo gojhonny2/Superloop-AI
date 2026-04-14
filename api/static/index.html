@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superloop AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- ── Nav ── -->
+  <nav class="nav">
+    <a class="nav-brand" href="/">
+      <img src="/static/logo-polished.svg" alt="" class="nav-logo">
+      <span class="nav-name">Superloop</span>
+    </a>
+    <div class="nav-center">
+      <span class="nav-pill" id="version-pill">connecting</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-score" id="score-block">
+        <span class="nav-score-num" id="run-score">0.00</span>
+        <span class="nav-score-label">score</span>
+      </div>
+      <span class="nav-status" id="run-status">Idle</span>
+    </div>
+  </nav>
+
+  <!-- ── Setup ── -->
+  <main id="setup-view" class="page">
+    <div class="hero">
+      <img src="/static/logo-polished.svg" alt="" class="hero-logo">
+      <h1>Superloop</h1>
+      <p class="hero-sub">Three AI models. One loop. Ship code that passes its own test.</p>
+    </div>
+
+    <form id="mission-form" class="setup">
+
+      <!-- Workspace -->
+      <section class="section">
+        <div class="section-label"><span class="label-num">1</span> Workspace</div>
+        <p class="section-desc">The folder where agents will read, write, and build.</p>
+        <div class="workspace-row">
+          <div class="workspace-display" id="workspace-display">
+            <span class="workspace-icon">&#128193;</span>
+            <span class="workspace-text" id="workspace-path-display">No folder selected</span>
+          </div>
+          <button type="button" id="open-picker" class="cta-sm">Open Folder</button>
+        </div>
+        <input type="hidden" id="workspace-path" value=".">
+        <div id="workspace-info" class="ws-info hidden">
+          <span class="ws-tag" id="ws-files">-</span>
+          <span class="ws-tag" id="ws-dirs">-</span>
+          <span class="ws-tag" id="ws-langs">-</span>
+          <span class="ws-tag" id="ws-data">-</span>
+        </div>
+      </section>
+
+      <!-- Mission -->
+      <section class="section">
+        <div class="section-label"><span class="label-num">2</span> Mission</div>
+        <p class="section-desc">What should the AI team build, and how do we know it worked?</p>
+        <div class="fields">
+          <div class="field full">
+            <label for="goal">Goal</label>
+            <textarea id="goal" rows="2" required placeholder="Build a prediction model that scores above 0.8 on the supplied dataset"></textarea>
+          </div>
+          <div class="field">
+            <label for="judge-brief">Judge criteria</label>
+            <textarea id="judge-brief" rows="2" placeholder="Reward accuracy, penalize overfitting"></textarea>
+          </div>
+          <div class="field">
+            <label for="data-path">Data file <span class="optional">optional</span></label>
+            <input id="data-path" type="text" placeholder="data/prices.csv">
+          </div>
+          <div class="field full">
+            <label for="operator-brief">Operator note <span class="optional">optional</span></label>
+            <input id="operator-brief" type="text" placeholder="Extra guidance before the manager starts">
+          </div>
+        </div>
+      </section>
+
+      <!-- Models -->
+      <section class="section">
+        <details class="toggle-section">
+          <summary>
+            <span class="section-label inline"><span class="label-num">3</span> Models & Settings</span>
+          </summary>
+          <div class="fields" style="margin-top:16px">
+            <div class="field">
+              <label for="manager-descriptor">Manager</label>
+              <input id="manager-descriptor" type="text" value="gemini:gemini-1.5-pro">
+            </div>
+            <div class="field">
+              <label for="specialist-1-descriptor">Specialist 1</label>
+              <input id="specialist-1-descriptor" type="text" value="openai:gpt-4o">
+            </div>
+            <div class="field">
+              <label for="specialist-2-descriptor">Specialist 2</label>
+              <input id="specialist-2-descriptor" type="text" value="anthropic:claude-3-5-sonnet-20240620">
+            </div>
+            <div class="field">
+              <label for="target-score">Target score</label>
+              <input id="target-score" type="number" step="0.01" min="0" max="1" value="0.8">
+            </div>
+            <div class="field">
+              <label for="max-iterations">Max rounds</label>
+              <input id="max-iterations" type="number" min="1" value="5">
+            </div>
+            <div class="field">
+              <label class="check-label"><input id="resume" type="checkbox"> Resume from last run</label>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <button type="submit" class="cta-main">Launch Superloop</button>
+    </form>
+
+    <footer class="how">
+      <div class="how-item"><strong>1.</strong> You set the goal</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>2.</strong> Manager builds + writes test</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>3.</strong> Specialists explore fixes</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>4.</strong> Manager merges best</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>5.</strong> Repeat until target hit</div>
+    </footer>
+  </main>
+
+  <!-- ── Run View ── -->
+  <div id="run-view" class="page hidden">
+    <div class="run-bar">
+      <div class="rb-stat"><span class="rb-label">Round</span><span class="rb-value" id="run-iteration">0</span></div>
+      <div class="rb-stat"><span class="rb-label">Target</span><span class="rb-value" id="target-score-display">0.80</span></div>
+      <div class="rb-stat"><span class="rb-label">Best</span><span class="rb-value accent" id="best-score-display">0.00</span></div>
+      <div class="rb-stat"><span class="rb-label">Phase</span><span class="rb-value" id="active-phase">starting</span></div>
+      <div class="rb-stat"><span class="rb-label">Events</span><span class="rb-value" id="event-count-display">0</span></div>
+    </div>
+
+    <form id="directive-form" class="directive-bar">
+      <input id="directive-message" type="text" placeholder="Send a note to the manager...">
+      <button type="submit" class="cta-sm">Send</button>
+      <button type="button" id="back-to-setup" class="btn-text">&#8592; Setup</button>
+    </form>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="timeline">Timeline</button>
+      <button class="tab" data-tab="branches">Branches</button>
+      <button class="tab" data-tab="files">Files</button>
+    </nav>
+
+    <div class="tab-content active" data-panel="timeline">
+      <div id="timeline" class="timeline"></div>
+    </div>
+    <div class="tab-content" data-panel="branches">
+      <div id="branch-board" class="branches"><p class="empty">Branch scores appear after round 1.</p></div>
+    </div>
+    <div class="tab-content" data-panel="files">
+      <div class="files-split">
+        <div id="artifact-list" class="file-list"><p class="empty">No files yet.</p></div>
+        <pre id="artifact-viewer" class="file-viewer">Select a file to preview.</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Folder Picker ── -->
+  <div id="picker-overlay" class="overlay hidden">
+    <div class="picker">
+      <div class="picker-top">
+        <h3>Open Folder</h3>
+        <button type="button" id="picker-close" class="close-btn">&times;</button>
+      </div>
+      <div class="picker-crumbs" id="picker-breadcrumb"></div>
+      <div class="picker-drives hidden" id="picker-drives"></div>
+      <div class="picker-entries" id="picker-list"></div>
+      <div class="picker-bottom">
+        <span class="picker-path-text" id="picker-current-path">.</span>
+        <button type="button" id="picker-select" class="cta-sm">Select Folder</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>

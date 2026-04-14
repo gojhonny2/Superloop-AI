@@ -1,0 +1,57 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "superloop"
+dynamic = ["version"]
+description = "Manager-led autonomous build/test loop with a live dashboard."
+authors = [{name = "Superloop Team"}]
+readme = "README.md"
+requires-python = ">=3.10"
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Software Development :: Build Tools",
+]
+dependencies = [
+  "anthropic",
+  "fastapi",
+  "google-generativeai",
+  "numpy",
+  "openai",
+  "pandas",
+  "python-dotenv",
+  "uvicorn",
+]
+
+[project.scripts]
+superloop = "shells.app_cli:cli"
+
+[tool.setuptools]
+include-package-data = true
+py-modules = ["superloop_version"]
+
+[tool.setuptools.packages.find]
+include = ["api*", "core*", "judges*", "models*", "shells*"]
+
+[tool.setuptools.package-data]
+api = ["static/*"]
+
+[tool.setuptools.dynamic]
+version = {attr = "superloop_version.__version__"}
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+norecursedirs = [
+  "runs",
+  "tests_runtime",
+  "workspace",
+  "tmp*",
+  "pytest-cache-files-*",
+]
