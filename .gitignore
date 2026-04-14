@@ -1,0 +1,35 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+
+.env
+.env.local
+.venv/
+venv/
+
+build/
+dist/
+
+runs/
+tests_runtime/
+workspace/
+tmp*/
+pytest-cache-files-*/
+*.log
+
+.pytest_cache/
+.mypy_cache/
+
+# AI coding-assistant / IDE meta — never upload
+.claude/
+.cursor/
+.continue/
+.aider*
+.codeium/
+.github-copilot/
+.vscode/
+.idea/
+
+# OS junk
+.DS_Store
+Thumbs.db

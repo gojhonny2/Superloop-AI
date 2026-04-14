@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Superloop AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+
+  <!-- Nav -->
+  <nav class="nav">
+    <a class="nav-brand" href="/">
+      <img src="/static/logo-polished.svg" alt="" class="nav-logo">
+      <span class="nav-name">Superloop</span>
+    </a>
+    <div class="nav-center">
+      <span class="nav-pill" id="version-pill">connecting</span>
+    </div>
+    <div class="nav-right">
+      <div class="nav-score" id="score-block">
+        <span class="nav-score-num" id="run-score">0.00</span>
+        <span class="nav-score-label">score</span>
+      </div>
+      <span class="nav-status" id="run-status">Idle</span>
+    </div>
+  </nav>
+
+  <!-- Setup View -->
+  <main id="setup-view" class="page">
+    <div class="hero">
+      <img src="/static/logo-polished.svg" alt="" class="hero-logo">
+      <h1>Superloop</h1>
+      <p class="hero-sub">Three models. One loop. Code that keeps improving until it passes its own test.</p>
+    </div>
+
+    <form id="mission-form" class="setup">
+
+      <!-- Step 1: Models -->
+      <section class="section">
+        <div class="section-label"><span class="label-num">1</span> Assign models</div>
+        <p class="section-desc">Pick which AI fills each role. The manager reads your entire workspace, so give it your most capable model.</p>
+        <div class="model-status" id="model-status">
+          <span class="scan-indicator" id="scan-indicator">Scanning providers...</span>
+        </div>
+        <div class="model-grid">
+          <div class="model-card">
+            <div class="model-card-header">
+              <span class="model-role-badge"><span class="dot"></span> Manager</span>
+              <span class="model-role">Leads the loop</span>
+              <span class="model-role-desc">Reads the workspace, writes the judge, integrates the winning branch.</span>
+            </div>
+            <select id="manager-descriptor" class="model-select">
+              <option value="">Scanning...</option>
+            </select>
+            <input id="manager-descriptor-custom" type="text" class="model-custom hidden" placeholder="provider:model-name">
+            <div class="token-slider">
+              <div class="token-slider-row">
+                <label for="manager-max-tokens">Max output tokens</label>
+                <span class="token-slider-val" id="manager-max-tokens-label">32k</span>
+              </div>
+              <input id="manager-max-tokens" type="range" min="4000" max="1000000" step="1000" value="32000" list="token-ticks">
+              <div class="token-slider-ticks"><span>4K</span><span>64K</span><span>1M</span></div>
+            </div>
+          </div>
+          <div class="model-card">
+            <div class="model-card-header">
+              <span class="model-role-badge"><span class="dot"></span> Specialist A</span>
+              <span class="model-role">Path A</span>
+              <span class="model-role-desc">Tries one interpretation of the manager's plan each round.</span>
+            </div>
+            <select id="specialist-1-descriptor" class="model-select">
+              <option value="">Scanning...</option>
+            </select>
+            <input id="specialist-1-descriptor-custom" type="text" class="model-custom hidden" placeholder="provider:model-name">
+            <div class="token-slider">
+              <div class="token-slider-row">
+                <label for="specialist-1-max-tokens">Max output tokens</label>
+                <span class="token-slider-val" id="specialist-1-max-tokens-label">32k</span>
+              </div>
+              <input id="specialist-1-max-tokens" type="range" min="4000" max="1000000" step="1000" value="32000">
+              <div class="token-slider-ticks"><span>4K</span><span>64K</span><span>1M</span></div>
+            </div>
+          </div>
+          <div class="model-card">
+            <div class="model-card-header">
+              <span class="model-role-badge"><span class="dot"></span> Specialist B</span>
+              <span class="model-role">Path B</span>
+              <span class="model-role-desc">Tries a different approach — whichever scores higher wins the round.</span>
+            </div>
+            <select id="specialist-2-descriptor" class="model-select">
+              <option value="">Scanning...</option>
+            </select>
+            <input id="specialist-2-descriptor-custom" type="text" class="model-custom hidden" placeholder="provider:model-name">
+            <div class="token-slider">
+              <div class="token-slider-row">
+                <label for="specialist-2-max-tokens">Max output tokens</label>
+                <span class="token-slider-val" id="specialist-2-max-tokens-label">32k</span>
+              </div>
+              <input id="specialist-2-max-tokens" type="range" min="4000" max="1000000" step="1000" value="32000">
+              <div class="token-slider-ticks"><span>4K</span><span>64K</span><span>1M</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 2: Workspace -->
+      <section class="section">
+        <div class="section-label"><span class="label-num">2</span> Open your project</div>
+        <p class="section-desc">Select the folder Superloop should work on. Every file, every line gets read before the loop starts.</p>
+        <div class="workspace-row">
+          <div class="workspace-display" id="workspace-display">
+            <span class="workspace-icon">&#128193;</span>
+            <span class="workspace-text" id="workspace-path-display">No folder selected</span>
+          </div>
+          <button type="button" id="open-picker" class="cta-sm">Open Folder</button>
+        </div>
+        <input type="hidden" id="workspace-path" value=".">
+      </section>
+
+      <!-- Step 3: Analysis Results (hidden until folder picked) -->
+      <section id="analysis-section" class="section hidden">
+        <div class="section-label"><span class="label-num">3</span> Project snapshot</div>
+        <p class="section-desc">What Superloop found in your workspace.</p>
+        <div id="analysis-loading" class="analysis-loading">
+          <span class="scan-indicator">Reading every file, every folder, every line...</span>
+        </div>
+        <div id="analysis-results" class="hidden">
+          <div class="analysis-card">
+            <div class="analysis-row">
+              <div class="a-stat"><span class="a-val" id="a-type">—</span><span class="a-label">Project type</span></div>
+              <div class="a-stat"><span class="a-val" id="a-files">—</span><span class="a-label">Code files</span></div>
+              <div class="a-stat"><span class="a-val" id="a-dirs">—</span><span class="a-label">Directories</span></div>
+              <div class="a-stat"><span class="a-val" id="a-lang">—</span><span class="a-label">Language</span></div>
+            </div>
+            <div class="a-details">
+              <div class="a-detail" id="a-entries"></div>
+              <div class="a-detail" id="a-deps"></div>
+              <div class="a-detail" id="a-data"></div>
+              <div class="a-detail" id="a-tests"></div>
+            </div>
+          </div>
+
+          <!-- Suggested goals -->
+          <div id="suggestions-block" class="suggestions-block hidden">
+            <p class="section-desc" style="margin-top:16px">Suggested goals based on your project — click one to use it:</p>
+            <div id="suggestions-list" class="suggestions-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Step 4: Mission (hidden until analysis done) -->
+      <section id="mission-section" class="section hidden">
+        <div class="section-label"><span class="label-num">4</span> Define the mission</div>
+        <p class="section-desc">What should the team build or fix? Be specific — the manager will base the judge on this.</p>
+        <div class="fields">
+          <div class="field full">
+            <label for="goal">Goal</label>
+            <textarea id="goal" rows="2" required placeholder="e.g. Improve the trading strategy win-rate above 80%"></textarea>
+          </div>
+          <div class="field">
+            <label for="judge-brief">Judge criteria <span class="optional">optional</span></label>
+            <textarea id="judge-brief" rows="2" placeholder="How should success be measured?"></textarea>
+          </div>
+          <div class="field">
+            <label for="data-path">Data file <span class="optional">optional</span></label>
+            <input id="data-path" type="text" placeholder="data/prices.csv">
+          </div>
+          <div class="field full">
+            <label for="operator-brief">Operator note <span class="optional">optional</span></label>
+            <input id="operator-brief" type="text" placeholder="Extra guidance for the manager">
+          </div>
+        </div>
+      </section>
+
+      <!-- Advanced settings (hidden until analysis done) -->
+      <section id="settings-section" class="section hidden">
+        <details class="toggle-section">
+          <summary><span class="toggle-label">Advanced settings</span></summary>
+          <div class="fields" style="margin-top:10px">
+            <div class="field">
+              <label for="target-score">Target score</label>
+              <input id="target-score" type="number" step="0.01" min="0" max="1" value="0.8">
+            </div>
+            <div class="field">
+              <label for="max-iterations">Max rounds</label>
+              <input id="max-iterations" type="number" min="1" value="5">
+            </div>
+            <div class="field">
+              <label class="check-label"><input id="resume" type="checkbox"> Resume from last run</label>
+            </div>
+          </div>
+        </details>
+      </section>
+
+      <!-- Launch button (hidden until analysis done) -->
+      <button type="submit" id="launch-btn" class="cta-main hidden">Start the loop &rarr;</button>
+    </form>
+
+    <footer class="how">
+      <div class="how-item"><strong>1.</strong> Pick models</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>2.</strong> Open workspace</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>3.</strong> AI reads everything</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>4.</strong> Set goal + launch</div>
+      <span class="how-arrow">&#8594;</span>
+      <div class="how-item"><strong>5.</strong> Loop until target hit</div>
+    </footer>
+  </main>
+
+  <!-- Run View -->
+  <div id="run-view" class="page hidden">
+    <div class="run-bar">
+      <div class="rb-stat"><span class="rb-label">Round</span><span class="rb-value" id="run-iteration">0</span></div>
+      <div class="rb-stat"><span class="rb-label">Target</span><span class="rb-value" id="target-score-display">0.80</span></div>
+      <div class="rb-stat"><span class="rb-label">Best</span><span class="rb-value accent" id="best-score-display">0.00</span></div>
+      <div class="rb-stat"><span class="rb-label">Phase</span><span class="rb-value" id="active-phase">starting</span></div>
+      <div class="rb-stat"><span class="rb-label">Events</span><span class="rb-value" id="event-count-display">0</span></div>
+    </div>
+
+    <form id="directive-form" class="directive-bar">
+      <input id="directive-message" type="text" placeholder="Send a note to the manager...">
+      <button type="submit" class="cta-sm">Send</button>
+      <button type="button" id="back-to-setup" class="btn-text">&#8592; Setup</button>
+    </form>
+
+    <nav class="tabs">
+      <button class="tab active" data-tab="timeline">Timeline</button>
+      <button class="tab" data-tab="branches">Branches</button>
+      <button class="tab" data-tab="files">Files</button>
+    </nav>
+
+    <div class="tab-content active" data-panel="timeline">
+      <div id="timeline" class="timeline"></div>
+    </div>
+    <div class="tab-content" data-panel="branches">
+      <div id="branch-board" class="branches"><p class="empty">Branch scores appear after round 1.</p></div>
+    </div>
+    <div class="tab-content" data-panel="files">
+      <div class="files-split">
+        <div id="artifact-list" class="file-list"><p class="empty">No files yet.</p></div>
+        <pre id="artifact-viewer" class="file-viewer">Select a file to preview.</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- Folder Picker Modal -->
+  <div id="picker-overlay" class="overlay hidden">
+    <div class="picker">
+      <div class="picker-top">
+        <h3>Open Folder</h3>
+        <button type="button" id="picker-close" class="close-btn">&times;</button>
+      </div>
+      <div class="picker-crumbs" id="picker-breadcrumb"></div>
+      <div class="picker-drives hidden" id="picker-drives"></div>
+      <div class="picker-entries" id="picker-list"></div>
+      <div class="picker-bottom">
+        <span class="picker-path-text" id="picker-current-path">.</span>
+        <button type="button" id="picker-select" class="cta-sm">Select Folder</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
